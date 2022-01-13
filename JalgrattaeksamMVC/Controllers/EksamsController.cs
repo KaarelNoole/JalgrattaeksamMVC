@@ -89,9 +89,15 @@ namespace JalgrattaeksamMVC.Controllers
         }
 
         // GET: Eksams/Ringrada
-        public async Task<IActionResult> Ringrada()
+        public async Task<IActionResult> Ring()
         {
             var model = _context.Eksam.Where(e => e.Teooria >= 9 && e.Ring == -1);
+            return View(await _context.Eksam.ToListAsync());
+        }
+        // GET: Eksams/Tänav
+        public async Task<IActionResult> Tänav()
+        {
+            var model = _context.Eksam.Where(e => e.Slaalom == 1 && e.Tänav == -1);
             return View(await _context.Eksam.ToListAsync());
         }
 
@@ -146,6 +152,27 @@ namespace JalgrattaeksamMVC.Controllers
 
             return RedirectToAction(Osa);
         }
+
+
+        // GET: Eksams/Luba
+        public async Task<IActionResult> Luba()
+        {
+            var model = _context.Eksam.Select(e =>
+            new LubaViewModel()
+            {
+                Id = e.Id,
+                Eesnimi = e.Eesnimi,
+                Perenimi = e.Perenimi,
+                Teooria = e.Teooria,
+                Ring = e.Ring==1?".":e.Ring==1?"Õnnestus":"Põrus",
+                Slaalom = e.Slaalom == 1 ? "." : e.Slaalom == 1 ? "Õnnestus" : "Põrus",
+                Tänav = e.Tänav == 1 ? "." : e.Tänav == 1 ? "Õnnestus" : "Põrus",
+                Luba = e.Luba == -1 && e.Tänav == 1?"Väljasta":"."
+            }) ;
+   
+            return View(await _context.Eksam.ToListAsync());
+        }
+
 
         // GET: Eksams
         public async Task<IActionResult> Index()
