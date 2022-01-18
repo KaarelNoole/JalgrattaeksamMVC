@@ -164,13 +164,28 @@ namespace JalgrattaeksamMVC.Controllers
                 Eesnimi = e.Eesnimi,
                 Perenimi = e.Perenimi,
                 Teooria = e.Teooria,
-                Ring = e.Ring==1?".":e.Ring==1?"Õnnestus":"Põrus",
-                Slaalom = e.Slaalom == 1 ? "." : e.Slaalom == 1 ? "Õnnestus" : "Põrus",
-                Tänav = e.Tänav == 1 ? "." : e.Tänav == 1 ? "Õnnestus" : "Põrus",
-                Luba = e.Luba == -1 && e.Tänav == 1?"Väljasta":"."
+                Ring = e.Ring== -1 ? "." :e.Ring== 1 ? "Õnnestus":"Põrus",
+                Slaalom = e.Slaalom == -1 ? "." : e.Slaalom == 1 ? "Õnnestus" : "Põrus",
+                Tänav = e.Tänav == -1 ? "." : e.Tänav == 1 ? "Õnnestus" : "Põrus",
+                Luba = e.Luba == -1 && e.Tänav == 1 ? "Väljasta" : "Väljastatud"
             }) ;
    
-            return View(await _context.Eksam.ToListAsync());
+            return View(await model.ToListAsync());
+        }
+
+        // GET: Eksams/Väljasta
+        public async Task<IActionResult> Väljasta(int Id)
+        {
+            var eksam = await _context.Eksam.FindAsync(Id);
+            if (eksam == null)
+            {
+                return NotFound();
+            }
+            if (eksam.Tänav == 1 && eksam.Luba == -1)
+            {
+            
+            }
+            return RedirectToAction();
         }
 
 
