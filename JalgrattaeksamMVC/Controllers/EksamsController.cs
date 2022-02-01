@@ -44,7 +44,7 @@ namespace JalgrattaeksamMVC.Controllers
         public async Task<IActionResult> Teooria()
         {
             var model = _context.Eksam.Where(e => e.Teooria == -1);
-            return View(await _context.Eksam.ToListAsync());
+            return View(await model.ToListAsync());
         }
 
 
@@ -85,20 +85,20 @@ namespace JalgrattaeksamMVC.Controllers
         public async Task<IActionResult> Slaalom()
         {
             var model = _context.Eksam.Where(e => e.Teooria >= 9 && e.Slaalom == -1);
-            return View(await _context.Eksam.ToListAsync());
+            return View(await model.ToListAsync());
         }
 
         // GET: Eksams/Ringrada
         public async Task<IActionResult> Ring()
         {
             var model = _context.Eksam.Where(e => e.Teooria >= 9 && e.Ring == -1);
-            return View(await _context.Eksam.ToListAsync());
+            return View(await model.ToListAsync());
         }
         // GET: Eksams/Tänav
         public async Task<IActionResult> Tänav()
         {
             var model = _context.Eksam.Where(e => e.Slaalom == 1 && e.Tänav == -1);
-            return View(await _context.Eksam.ToListAsync());
+            return View(await model.ToListAsync());
         }
 
         public async Task<IActionResult> PassFail(int Id, string Osa, int Tulemus)
@@ -147,9 +147,6 @@ namespace JalgrattaeksamMVC.Controllers
                 }
 
             }
-            return RedirectToAction(nameof(Teooria));
-
-
             return RedirectToAction(Osa);
         }
 
@@ -164,28 +161,43 @@ namespace JalgrattaeksamMVC.Controllers
                 Eesnimi = e.Eesnimi,
                 Perenimi = e.Perenimi,
                 Teooria = e.Teooria,
-                Ring = e.Ring== -1 ? "." :e.Ring== 1 ? "Õnnestus":"Põrus",
+                Ring = e.Ring == -1 ? "." : e.Ring == 1 ? "Õnnestus" : "Põrus",
                 Slaalom = e.Slaalom == -1 ? "." : e.Slaalom == 1 ? "Õnnestus" : "Põrus",
                 Tänav = e.Tänav == -1 ? "." : e.Tänav == 1 ? "Õnnestus" : "Põrus",
-                Luba = e.Luba == -1 && e.Tänav == 1 ? "Väljasta" : "Väljastatud"
+                Luba = e.Luba == 1 ? "Väljastatud" : e.Tänav == 1 ? "Väljasta" : "."
             }) ;
    
             return View(await model.ToListAsync());
         }
 
         // GET: Eksams/Väljasta
-        public async Task<IActionResult> Väljasta(int Id)
+        public async Task<IActionResult> VäljastaLuba(int Id)
         {
             var eksam = await _context.Eksam.FindAsync(Id);
             if (eksam == null)
             {
                 return NotFound();
             }
-            if (eksam.Tänav == 1 && eksam.Luba == -1)
+            eksam.Luba = 1;
+            try
             {
-            
+                _context.Update(eksam);
+                await _context.SaveChangesAsync();
             }
-            return RedirectToAction();
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EksamExists(eksam.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
+
+            return RedirectToAction("Luba");
         }
 
 
